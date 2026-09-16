@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+
+# This app's runtime data — never commit a real user's indexed repos/passwords
+backend/codenav.db
+backend/*.db
+
+# Env / secrets
+.env
+*.env.local
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
