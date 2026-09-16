@@ -1,0 +1,46 @@
+.home-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 32px; border-bottom: 1px solid var(--border-soft);
+}
+
+.account-page { max-width: 620px; margin: 0 auto; padding: 48px 32px 80px; }
+.account-page h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.015em; margin: 0 0 6px; }
+.account-page > .hint { margin-bottom: 36px; }
+
+.account-section {
+  border: 1px solid var(--border-soft); border-radius: 12px;
+  background: var(--surface); padding: 26px; margin-bottom: 20px;
+}
+.account-section h2 { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+.section-hint { color: var(--text-faint); font-size: 12.5px; line-height: 1.6; margin: 0 0 20px; max-width: 52ch; }
+.account-section form { max-width: 340px; }
+.account-section button[type="submit"] { margin-top: 6px; }
+
+/* Profile */
+.profile-row { display: flex; align-items: center; gap: 14px; margin: 16px 0 22px; }
+.profile-avatar {
+  width: 44px; height: 44px; border-radius: 50%; background: #ffffff; color: #000000;
+  font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 18px;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.profile-email { font-size: 14px; font-weight: 600; word-break: break-all; }
+.profile-since { font-size: 12px; color: var(--text-faint); margin-top: 3px; }
+
+.usage-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.usage-tile { border: 1px solid var(--border-soft); border-radius: 9px; padding: 13px; }
+.usage-tile .n { font-size: 21px; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1; }
+.usage-tile .l { font-size: 10.5px; color: var(--text-faint); font-weight: 600; margin-top: 5px; }
+
+/* Danger zone: outlined rather than filled, so it reads as distinct
+   without introducing a colour into a strictly monochrome palette. */
+.account-section.danger { border-color: var(--border); }
+.account-section.danger h2 { color: #ffffff; }
+button.danger-btn {
+  background: transparent; border: 1.5px solid #ffffff; color: #ffffff; font-weight: 700;
+}
+button.danger-btn:hover { background: #ffffff; color: #000000; opacity: 1; }
+
+@media (max-width: 640px) {
+  .usage-grid { grid-template-columns: repeat(2, 1fr); }
+  .account-page { padding: 32px 20px 60px; }
+}

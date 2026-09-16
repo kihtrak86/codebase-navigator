@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account — Codebase Navigator</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/account.css">
+</head>
+<body>
+
+<div class="home-header">
+  <div id="navLogo"></div>
+  <nav><button class="ghost" onclick="location.href='/app.html'">Back to app</button></nav>
+</div>
+
+<div class="account-page">
+  <h1>Account</h1>
+  <p class="hint">Manage how you sign in, and what this account holds.</p>
+
+  <!-- Profile + usage -->
+  <section class="account-section">
+    <h2>Profile</h2>
+    <div class="profile-row">
+      <div class="profile-avatar" id="profileAvatar"></div>
+      <div>
+        <div class="profile-email mono" id="profileEmail">&nbsp;</div>
+        <div class="profile-since" id="profileSince">&nbsp;</div>
+      </div>
+    </div>
+    <div class="usage-grid" id="usageGrid"></div>
+  </section>
+
+  <!-- Change email -->
+  <section class="account-section">
+    <h2>Email address</h2>
+    <p class="section-hint">This is the address you sign in with. Changing it requires your password.</p>
+    <div id="emailError" class="auth-error hidden"></div>
+    <div id="emailSuccess" class="auth-success hidden"></div>
+    <form onsubmit="submitChangeEmail(event)">
+      <div class="field"><label>New email</label><input type="email" id="newEmail" required autocomplete="email" /></div>
+      <div class="field"><label>Current password</label><input type="password" id="emailPassword" required autocomplete="current-password" /></div>
+      <button type="submit">Update email</button>
+    </form>
+  </section>
+
+  <!-- Change password -->
+  <section class="account-section">
+    <h2>Password</h2>
+    <p class="section-hint">You'll stay signed in on this device after changing it.</p>
+    <div id="pwError" class="auth-error hidden"></div>
+    <div id="pwSuccess" class="auth-success hidden"></div>
+    <form id="changePwForm" onsubmit="submitChangePassword(event)">
+      <div class="field"><label>Current password</label><input type="password" id="currentPassword" required autocomplete="current-password" /></div>
+      <div class="field"><label>New password</label><input type="password" id="newPassword" required autocomplete="new-password" minlength="8" /></div>
+      <button type="submit">Update password</button>
+    </form>
+  </section>
+
+  <!-- Danger zone -->
+  <section class="account-section danger">
+    <h2>Delete account</h2>
+    <p class="section-hint">Permanently deletes your account and every repository you've indexed, including all symbols and dependency data. This cannot be undone.</p>
+    <div id="deleteError" class="auth-error hidden"></div>
+    <form onsubmit="submitDeleteAccount(event)">
+      <div class="field"><label>Current password</label><input type="password" id="deletePassword" required autocomplete="current-password" /></div>
+      <div class="field"><label>Type DELETE to confirm</label><input type="text" id="deleteConfirm" class="mono" required placeholder="DELETE" /></div>
+      <button type="submit" class="danger-btn">Delete my account</button>
+    </form>
+  </section>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/account.js"></script>
+</body>
+</html>

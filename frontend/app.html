@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codebase Navigator</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+
+<div id="appView">
+  <header class="app-header">
+    <div class="header-row">
+      <div id="navLogo"></div>
+      <div class="index-form">
+        <input id="repoUrl" placeholder="https://github.com/owner/repo" />
+        <button onclick="indexRepo()">Index repository</button>
+      </div>
+      <div class="user-badge">
+        <div class="account-menu-wrap">
+          <button class="account-trigger" onclick="toggleAccountMenu(event)">
+            <span class="account-avatar" id="accountAvatar"></span>
+            <span class="email" id="userEmail"></span>
+          </button>
+          <div class="account-dropdown hidden" id="accountDropdown">
+            <div class="email-row" id="accountDropdownEmail"></div>
+            <button class="menu-item" onclick="location.href='/account.html'">Account settings</button>
+            <button class="menu-item" onclick="doLogout()">Sign out</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="statusStrip"></div>
+    <div id="statTop" class="stat-strip hidden"></div>
+  </header>
+  <main id="mainGrid">
+    <div class="panel" id="repoPanel"></div>
+    <div class="panel" id="filePanel"></div>
+    <div id="detail"></div>
+  </main>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codebase Navigator — understand any codebase before you touch it</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+
+<div class="home-header">
+  <div id="navLogo"></div>
+  <nav id="navActions">
+    <button class="ghost" onclick="location.href='/auth.html?mode=login'">Sign in</button>
+    <button onclick="location.href='/auth.html?mode=signup'">Get started</button>
+  </nav>
+</div>
+
+<div class="hero">
+  <div class="hero-copy">
+    <h1>Understand any codebase before you touch a single line.</h1>
+    <p class="sub">Index a GitHub repository into a real structural graph — files, symbols, dependencies, tests — and see exactly what calls what, and what breaks if you change it.</p>
+    <div class="hero-ctas">
+      <button onclick="location.href='/auth.html?mode=signup'">Create a free account</button>
+      <button class="ghost" onclick="location.href='/auth.html?mode=login'">Sign in</button>
+    </div>
+    <p class="hero-note">Python, JavaScript, JSX, TypeScript, and TSX supported today.</p>
+  </div>
+  <div class="hero-image">
+    <img src="assets/hero-graph.svg" alt="A call-graph diagram: checkout() flows down through validate_cart(), calculate_total(), and the highlighted process_payment() to create_order() and send_confirmation(), with an impact note reading 3 functions, 2 files, 4 tests affected if process_payment changes.">
+  </div>
+</div>
+
+<div class="feature-grid">
+  <div class="feature-card"><div class="n">01</div><h3>Structural indexing</h3><p>Clone a repo and parse it into files, symbols, imports, and calls — not just a text search index.</p></div>
+  <div class="feature-card"><div class="n">02</div><h3>Impact analysis</h3><p>Ask "what breaks if I change this?" and get a real answer, traced through the dependency graph.</p></div>
+  <div class="feature-card"><div class="n">03</div><h3>Graph visualization</h3><p>See a symbol's callers and callees as an actual node-link graph, not just a list.</p></div>
+  <div class="feature-card"><div class="n">04</div><h3>Your repos, saved</h3><p>Every repo you index is tied to your account and stays there for your next session.</p></div>
+</div>
+
+<div class="home-section">
+  <div class="home-section-head">
+    <div class="eyebrow">How it works</div>
+    <h2>Three steps from a URL to an answer.</h2>
+    <p>No setup beyond pasting a link. Indexing runs once; every question after that is instant.</p>
+  </div>
+  <div class="steps-row">
+    <div class="step-card">
+      <div class="step-n">1</div>
+      <h3>Index the repository</h3>
+      <p>Paste a GitHub URL. The repo is cloned and parsed into files, symbols, imports, and call relationships — a structural graph, not a flat file list.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-n">2</div>
+      <h3>Explore the graph</h3>
+      <p>Browse the file tree or search by symbol name. Every function or class shows its callers, callees, and mapped tests in one view.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-n">3</div>
+      <h3>Trace the impact</h3>
+      <p>Select a symbol and see exactly what depends on it, how far the effect reaches, and which tests actually cover it — before you touch a line.</p>
+    </div>
+  </div>
+</div>
+
+<div class="home-section">
+  <div class="home-section-head">
+    <div class="eyebrow">Built for</div>
+    <h2>Anyone dropped into code they didn't write.</h2>
+  </div>
+  <div class="persona-grid">
+    <div class="persona-card"><div class="glyph-mark">N</div><p>Developers joining an existing project or team</p></div>
+    <div class="persona-card"><div class="glyph-mark">I</div><p>Interns and new engineers learning a large codebase</p></div>
+    <div class="persona-card"><div class="glyph-mark">L</div><p>Engineers debugging or modifying legacy code</p></div>
+    <div class="persona-card"><div class="glyph-mark">O</div><p>Open-source contributors working in unfamiliar repos</p></div>
+  </div>
+</div>
+
+<div class="home-footer">Codebase Navigator &mdash; Python, JavaScript, JSX, TypeScript, and TSX supported.</div>
+
+<script src="js/common.js"></script>
+<script src="js/home.js"></script>
+</body>
+</html>

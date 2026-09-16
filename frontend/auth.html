@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in — Codebase Navigator</title>
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+<div class="auth-page">
+  <div class="auth-form-panel">
+    <div class="back-link" id="navLogo"></div>
+
+    <div class="form-wrap">
+      <h1 id="authTitle">Sign in</h1>
+      <p class="hint" id="authHint">Welcome back.</p>
+      <div id="authError" class="auth-error hidden"></div>
+      <div id="authSuccess" class="auth-success hidden"></div>
+      <div id="devTokenNote" class="auth-note hidden">
+        <strong>No email service is configured (dev mode).</strong> Here's the reset token — normally this would be emailed to you.
+        <div class="dev-token-box"><code id="devTokenValue"></code><button type="button" class="ghost" onclick="copyDevToken()">Copy</button></div>
+      </div>
+
+      <form id="authForm" onsubmit="submitAuth(event)">
+        <div class="field" id="emailField"><label>Email</label><input type="email" id="authEmail" autocomplete="email" /></div>
+        <div class="field" id="passwordField"><label>Password</label><input type="password" id="authPassword" autocomplete="current-password" /></div>
+        <div class="field hidden" id="tokenField"><label>Reset token</label><input type="text" id="authToken" class="mono" placeholder="Paste the token from the email" /></div>
+        <div class="auth-forgot-link hidden" id="forgotLinkRow"><button type="button" class="text-link" onclick="setAuthMode('forgot')">Forgot password?</button></div>
+        <button class="primary-btn" type="submit" id="authSubmitBtn">Sign in</button>
+      </form>
+      <div class="auth-switch">
+        <span id="authSwitchText">Don't have an account?</span>
+        <button class="text-link" onclick="toggleAuthMode()" id="authSwitchBtn">Sign up</button>
+      </div>
+    </div>
+
+    <div class="auth-foot">Codebase Navigator &mdash; Python, JavaScript, JSX, TypeScript &amp; TSX.</div>
+  </div>
+
+  <div class="auth-art-panel">
+    <img src="assets/auth-mesh.svg" alt="">
+    <div class="auth-art-copy">
+      <p class="quote">Every edge in this graph was traced from source &mdash; not guessed.</p>
+      <div class="attribution">structural indexing, not text search</div>
+    </div>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

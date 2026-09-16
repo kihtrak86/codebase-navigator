@@ -1,0 +1,60 @@
+<svg width="470" height="560" viewBox="0 0 470 560" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="'JetBrains Mono', ui-monospace, monospace">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#4a4a4a"/>
+    </marker>
+  </defs>
+
+  <!-- connecting spine -->
+  <line x1="150" y1="52" x2="150" y2="94" stroke="#3a3a3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="150" y1="136" x2="150" y2="178" stroke="#3a3a3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="150" y1="220" x2="150" y2="262" stroke="#3a3a3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="150" y1="304" x2="150" y2="346" stroke="#3a3a3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="150" y1="388" x2="150" y2="430" stroke="#3a3a3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- checkout() -->
+  <rect x="40" y="10" width="220" height="42" rx="8" fill="none" stroke="#ffffff" stroke-width="1.6"/>
+  <rect x="52" y="24" width="14" height="14" rx="3" fill="none" stroke="#ffffff" stroke-width="1.4"/>
+  <text x="78" y="36" fill="#ffffff" font-size="14" font-weight="600">checkout()</text>
+
+  <!-- validate_cart() -->
+  <rect x="40" y="94" width="220" height="42" rx="8" fill="none" stroke="#2b2b2b" stroke-width="1.4"/>
+  <rect x="52" y="108" width="14" height="14" rx="3" fill="#ffffff"/>
+  <text x="78" y="120" fill="#c7c7c7" font-size="14" font-weight="500">validate_cart()</text>
+
+  <!-- calculate_total() -->
+  <rect x="40" y="178" width="220" height="42" rx="8" fill="none" stroke="#2b2b2b" stroke-width="1.4"/>
+  <rect x="52" y="192" width="14" height="14" rx="3" fill="#ffffff"/>
+  <text x="78" y="204" fill="#c7c7c7" font-size="14" font-weight="500">calculate_total()</text>
+
+  <!-- process_payment(): the emphasized "what if I change this" node -->
+  <rect x="34" y="256" width="232" height="48" rx="9" fill="#ffffff"/>
+  <rect x="48" y="272" width="15" height="15" rx="3" fill="#000000"/>
+  <text x="75" y="285" fill="#000000" font-size="14.5" font-weight="800">process_payment()</text>
+  <!-- impact annotation -->
+  <line x1="266" y1="280" x2="318" y2="280" stroke="#4a4a4a" stroke-width="1.3" stroke-dasharray="3 3"/>
+  <text x="322" y="270" fill="#8a8a8a" font-size="10.5" font-weight="600">if changed:</text>
+  <text x="322" y="284" fill="#ffffff" font-size="10.5" font-weight="700">3 functions</text>
+  <text x="322" y="298" fill="#ffffff" font-size="10.5" font-weight="700">2 files · 4 tests</text>
+
+  <!-- create_order() -->
+  <rect x="40" y="346" width="220" height="42" rx="8" fill="none" stroke="#2b2b2b" stroke-width="1.4"/>
+  <rect x="52" y="360" width="14" height="14" rx="3" fill="#ffffff"/>
+  <text x="78" y="372" fill="#c7c7c7" font-size="14" font-weight="500">create_order()</text>
+
+  <!-- send_confirmation() -->
+  <rect x="40" y="430" width="220" height="42" rx="8" fill="none" stroke="#2b2b2b" stroke-width="1.4"/>
+  <rect x="52" y="444" width="14" height="14" rx="3" fill="#ffffff"/>
+  <text x="78" y="456" fill="#c7c7c7" font-size="14" font-weight="500">send_confirmation()</text>
+
+  <!-- test coverage markers, dashed method-style, floating right of the chain -->
+  <rect x="310" y="360" width="13" height="13" rx="3" fill="none" stroke="#5c5c5c" stroke-width="1.2" stroke-dasharray="2.2 2"/>
+  <text x="330" y="371" fill="#5c5c5c" font-size="10.5">test_create_order</text>
+  <line x1="262" y1="367" x2="308" y2="367" stroke="#2b2b2b" stroke-width="1.2"/>
+
+  <rect x="310" y="444" width="13" height="13" rx="3" fill="none" stroke="#5c5c5c" stroke-width="1.2" stroke-dasharray="2.2 2"/>
+  <text x="330" y="455" fill="#5c5c5c" font-size="10.5">test_checkout</text>
+  <line x1="262" y1="451" x2="308" y2="451" stroke="#2b2b2b" stroke-width="1.2"/>
+
+  <text x="40" y="518" fill="#5c5c5c" font-size="11" font-weight="600">→ the actual call chain, indexed from source — not a guess</text>
+</svg>

@@ -1,0 +1,96 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Manrope', -apple-system, sans-serif;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+::selection { background: #ffffff; color: #000000; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border); }
+:focus-visible { outline: 1px solid var(--text); outline-offset: 1px; }
+a { color: inherit; }
+.hidden { display: none !important; }
+
+button {
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  color: #000000;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: opacity 0.12s ease, transform 0.08s ease;
+}
+button:hover { opacity: 0.85; }
+button:active { transform: scale(0.97); }
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+button.ghost:hover { border-color: var(--text-dim); color: var(--text); opacity: 1; }
+button.text-link {
+  background: none; border: none; color: var(--text-dim);
+  font-weight: 600; text-decoration: underline; padding: 0; font-size: 13px;
+}
+button.text-link:hover { color: var(--text); opacity: 1; }
+
+input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-family: inherit;
+  width: 100%;
+}
+input::placeholder { color: var(--text-faint); }
+input:focus { border-color: var(--text); }
+
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; }
+.hint { color: var(--text-faint); font-size: 12.5px; margin: 0 0 20px; }
+
+/* ---------- Symbol-type glyphs (function/class/method), shared with the graph tab ---------- */
+.type-glyph {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 18px; flex-shrink: 0;
+  font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 10.5px;
+  border-radius: 4px;
+}
+.type-glyph.function { background: #ffffff; color: #000000; border: 1px solid #ffffff; }
+.type-glyph.class { background: transparent; color: #ffffff; border: 1.5px solid #ffffff; }
+.type-glyph.method { background: transparent; color: var(--text-dim); border: 1px dashed var(--text-dim); }
+
+/* ---------- Site logo (nav mark), reused on every page ---------- */
+.site-logo { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 15px; letter-spacing: -0.01em; text-decoration: none; color: inherit; }
+.site-logo svg { display: block; flex-shrink: 0; }
+
+.auth-error { color: #ffffff; background: #1a1a1a; border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; font-size: 12.5px; margin-bottom: 14px; }
+.auth-success { color: #ffffff; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; font-size: 12.5px; margin-bottom: 14px; }
+.auth-note { color: var(--text-dim); background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; font-size: 12px; line-height: 1.6; margin-bottom: 16px; }
+.auth-note strong { color: #ffffff; }
+.dev-token-box { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.dev-token-box code { flex: 1; background: var(--surface-3); border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; font-size: 11px; overflow-x: auto; white-space: nowrap; }
+.dev-token-box button { padding: 6px 10px; font-size: 11px; flex-shrink: 0; }
+
+/* ---------- Modal (used by the in-app "change password" dialog) ---------- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.modal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 34px; width: 360px; max-width: 90vw; position: relative; }
+.modal-card h2 { font-size: 19px; font-weight: 800; margin: 0 0 4px; }
+.modal-card .primary-btn { width: 100%; margin-top: 6px; padding: 11px; }
+.modal-close { position: absolute; top: 18px; right: 20px; background: none; border: none; color: var(--text-faint); font-size: 20px; padding: 4px; }
+.modal-close:hover { color: var(--text); opacity: 1; }
