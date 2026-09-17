@@ -19,9 +19,9 @@ app.add_middleware(
     allow_credentials=True,
 )
 # Session cookie must come after CORS in the middleware stack (Starlette
-# applies them in reverse-add order), and allow_credentials=True + a
-# specific origin would be needed for cross-origin cookie use in production;
-# same-origin (frontend served by this same app) works fine as-is.
+                                                                    
+                                                                            
+                                                                  
 app.add_middleware(SessionMiddleware, secret_key=get_session_secret(), same_site="lax")
 
 init_db()
@@ -34,8 +34,8 @@ def health():
     return {"status": "ok"}
 
 
-# Mounted last: Starlette matches routes in registration order, and a "/"
-# mount would otherwise shadow routes defined after it.
+                                                                         
+                                                       
 frontend_dir = os.path.join(os.path.dirname(__file__), "..", "..", "frontend")
 if os.path.isdir(frontend_dir):
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")

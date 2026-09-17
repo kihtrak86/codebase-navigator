@@ -42,20 +42,20 @@ from .import_resolver import build_import_maps
 from ..db import get_conn
 
 # Stress-testing against a large real repo (Django, ~3,000 Python files)
-# found that fallback matching alone produced over a million dependency
-# edges for ~38,000 symbols -- because a name like `__init__` (880 distinct
-# methods repo-wide) turns every bare `self.__init__(...)` / `super().
-# __init__(...)` call into an edge to *every* `__init__` in the codebase.
-# That's not "tolerant of some false positives" anymore, it's a graph that's
-# useless for its actual purpose: impact analysis on anything would show
-# most of the codebase as "affected." A name with more candidates than this
-# threshold is left unresolved by the fallback rather than guessed -- the
-# same "known unresolvable is more honest than a guess" stance already
-# taken for external imports. The threshold (10) comes from the real
-# distribution on that repo: the overwhelming majority of names are either
-# unique (25,137) or have a handful of legitimate duplicates (2,046 have
-# 2-3, 510 have 4-8) -- collisions above ~10 are overwhelmingly generic/
-# dunder-style names, not genuine repo-specific reuse worth linking.
+                                                                       
+                                                                           
+                                                                      
+                                                                         
+                                                                            
+                                                                        
+                                                                           
+                                                                         
+                                                                      
+                                                                    
+                                                                          
+                                                                        
+                                                                        
+                                                                    
 AMBIGUOUS_NAME_THRESHOLD = 10
 
 JS_EXTENSIONS = (".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx")
@@ -95,11 +95,11 @@ def _index_local_repo(url: str, local_path: str, commit_hash: str, user_id: int)
     import_maps = build_import_maps(extracted_files)
 
     with get_conn() as conn:
-        # Re-indexing a URL that's already in the DB replaces it rather than
-        # accumulating duplicate repository rows (cascades to its files/
-        # symbols/dependencies/tests via the schema's ON DELETE CASCADE).
-        # Scoped per-user: two different users indexing the same public repo
-        # get independent copies, not a shared row one of them can delete.
+                                                                            
+                                                                        
+                                                                         
+                                                                            
+                                                                          
         for row in conn.execute(
             "SELECT id FROM repositories WHERE url = ? AND user_id = ?", (url, user_id)
         ).fetchall():
@@ -112,13 +112,13 @@ def _index_local_repo(url: str, local_path: str, commit_hash: str, user_id: int)
         repository_id = cur.lastrowid
 
         file_id_by_path: dict[str, int] = {}
-        symbol_id_by_simple: dict[str, list[int]] = {}          # simple name -> [symbol_id], repo-wide
-        symbols_by_file_and_name: dict[tuple[str, str], list[int]] = {}  # (relpath, name) -> [symbol_id], top-level only
-        symbol_id_by_qualified: dict[str, list[int]] = {}        # qualified_name -> [symbol_id], repo-wide -- used
-                                                                    # for typed-call resolution ("ClassName.method")
+        symbol_id_by_simple: dict[str, list[int]] = {}                                                 
+        symbols_by_file_and_name: dict[tuple[str, str], list[int]] = {}                                                  
+        symbol_id_by_qualified: dict[str, list[int]] = {}                                                          
+                                                                                                                    
         pending_calls: list[tuple[int, list[str], list[tuple[str, str]], str, set[str]]] = []
-        # (symbol_id, calls, typed_calls, file_relpath, local_bindings)
-        pending_tests: list[tuple[int, int]] = []  # (test_symbol_id, file_id)
+                                                                       
+        pending_tests: list[tuple[int, int]] = []                             
 
         for ef in extracted_files:
             fcur = conn.execute(
@@ -140,14 +140,14 @@ def _index_local_repo(url: str, local_path: str, commit_hash: str, user_id: int)
                      sym.start_line, sym.end_line, parent_id),
                 )
                 symbol_id = scur.lastrowid
-                # Register every symbol (not just classes) as a potential parent --
-                # this is what lets a nested function's own qualified_name resolve
-                # correctly when *its* nested functions look up parent_symbol_id.
+                                                                                   
+                                                                                  
+                                                                                 
                 parent_id_by_qname[sym.qualified_name] = symbol_id
 
                 symbol_id_by_simple.setdefault(sym.name, []).append(symbol_id)
                 symbol_id_by_qualified.setdefault(sym.qualified_name, []).append(symbol_id)
-                if parent_id is None:  # top-level: what an import can actually bind to
+                if parent_id is None:                                                  
                     symbols_by_file_and_name.setdefault((ef.relpath, sym.name), []).append(symbol_id)
 
                 if sym.calls or sym.typed_calls:
@@ -160,17 +160,17 @@ def _index_local_repo(url: str, local_path: str, commit_hash: str, user_id: int)
             seen_targets = set()
             file_import_map = import_maps.get(file_relpath, {})
 
-            # Typed calls first: resolved directly against the specific
-            # class's method (e.g. "PaymentGateway.charge"), bypassing
-            # local-binding/import/fallback matching entirely -- a known
-            # receiver type is more specific than any of those three
-            # signals, and mixing it with the name-only fallback below
-            # would just reintroduce the ambiguity this exists to remove.
+                                                                       
+                                                                      
+                                                                        
+                                                                    
+                                                                      
+                                                                         
             for receiver_type, method_name in typed_calls:
                 qualified_key = f"{receiver_type}.{method_name}"
                 targets = symbol_id_by_qualified.get(qualified_key, [])
                 if len(targets) > AMBIGUOUS_NAME_THRESHOLD:
-                    continue  # e.g. two unrelated classes both literally named receiver_type
+                    continue                                                                 
                 for target_id in targets:
                     if target_id == source_symbol_id or target_id in seen_targets:
                         continue
@@ -179,25 +179,25 @@ def _index_local_repo(url: str, local_path: str, commit_hash: str, user_id: int)
 
             for name in call_names:
                 if name in local_bindings:
-                    continue  # step 1: shadowed by a param/local declaration -- not a repo symbol
+                    continue                                                                      
 
                 resolution = file_import_map.get(name)
                 if resolution is not None:
                     if resolution[0] == "file":
                         _, target_relpath, orig_name = resolution
-                        lookup_name = orig_name or name  # default import: best guess is the local alias itself
+                        lookup_name = orig_name or name                                                        
                         targets = symbols_by_file_and_name.get((target_relpath, lookup_name), [])
                         for target_id in targets:
                             if target_id == source_symbol_id or target_id in seen_targets:
                                 continue
                             seen_targets.add(target_id)
                             dependency_rows.append((repository_id, source_symbol_id, target_id, "calls"))
-                    # resolution[0] == "external": known to come from outside the repo -- no edge, no fallback
+                                                                                                              
                     continue
 
-                # step 3: not imported, not locally bound -- repo-wide name fallback,
-                # skipped entirely when the name is too ambiguous to mean anything
-                # (see AMBIGUOUS_NAME_THRESHOLD above)
+                                                                                     
+                                                                                  
+                                                      
                 fallback_targets = symbol_id_by_simple.get(name, [])
                 if len(fallback_targets) > AMBIGUOUS_NAME_THRESHOLD:
                     continue
@@ -214,8 +214,8 @@ def _index_local_repo(url: str, local_path: str, commit_hash: str, user_id: int)
                 dependency_rows,
             )
 
-        # best-effort test -> covered-symbol mapping: a test named test_foo
-        # is assumed to cover a symbol named foo, if one exists.
+                                                                           
+                                                                
         test_rows = []
         for test_symbol_id, file_id in pending_tests:
             row = conn.execute("SELECT name FROM symbols WHERE id = ?", (test_symbol_id,)).fetchone()

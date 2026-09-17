@@ -20,10 +20,29 @@ class IndexRequest(BaseModel):
     url: str
 
 
+class FolderCreateRequest(BaseModel):
+    name: str
+
+
+class FolderRenameRequest(BaseModel):
+    name: str
+
+
+class MoveRepoRequest(BaseModel):
+    # None (or omitted) un-files the repo back to the top-level list.
+    folder_id: int | None = None
+
+
 def _owned_repo_or_404(conn, repo_id: int, user_id: int):
     row = conn.execute("SELECT id FROM repositories WHERE id = ? AND user_id = ?", (repo_id, user_id)).fetchone()
     if not row:
         raise HTTPException(status_code=404, detail="Repository not found")
+
+
+def _owned_folder_or_404(conn, folder_id: int, user_id: int):
+    row = conn.execute("SELECT id FROM repo_folders WHERE id = ? AND user_id = ?", (folder_id, user_id)).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Folder not found")
 
 
 def _owned_symbol_or_404(conn, symbol_id: int, user_id: int):
@@ -51,7 +70,7 @@ def index_repo(req: IndexRequest, user=Depends(get_current_user)):
 def list_repos(user=Depends(get_current_user)):
     with get_conn() as conn:
         rows = conn.execute(
-            "SELECT id, name, url, commit_hash, created_at, file_count, symbol_count, dependency_count "
+            "SELECT id, name, url, commit_hash, created_at, file_count, symbol_count, dependency_count, folder_id "
             "FROM repositories WHERE user_id = ? ORDER BY id DESC",
             (user["id"],),
         ).fetchall()
@@ -64,6 +83,72 @@ def delete_repo(repo_id: int, user=Depends(get_current_user)):
         _owned_repo_or_404(conn, repo_id, user["id"])
         conn.execute("DELETE FROM repositories WHERE id=?", (repo_id,))
     return {"deleted": repo_id}
+
+
+@router.put("/repos/{repo_id}/folder")
+def move_repo(repo_id: int, req: MoveRepoRequest, user=Depends(get_current_user)):
+    """Assign a repo to a folder, or drop it back to the unfiled top-level
+    list by sending folder_id: null."""
+    with get_conn() as conn:
+        _owned_repo_or_404(conn, repo_id, user["id"])
+        if req.folder_id is not None:
+            _owned_folder_or_404(conn, req.folder_id, user["id"])
+        conn.execute("UPDATE repositories SET folder_id=? WHERE id=?", (req.folder_id, repo_id))
+    return {"id": repo_id, "folder_id": req.folder_id}
+
+
+@router.get("/folders")
+def list_folders(user=Depends(get_current_user)):
+    """Folders with a live repo_count, so the UI can show counts on
+    collapsed folders without a second round trip per folder."""
+    with get_conn() as conn:
+        rows = conn.execute(
+            """SELECT f.id, f.name, f.created_at, f.sort_order,
+                      COUNT(r.id) AS repo_count
+               FROM repo_folders f LEFT JOIN repositories r ON r.folder_id = f.id
+               WHERE f.user_id = ?
+               GROUP BY f.id ORDER BY f.sort_order, f.id""",
+            (user["id"],),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+@router.post("/folders")
+def create_folder(req: FolderCreateRequest, user=Depends(get_current_user)):
+    name = req.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Folder name can't be empty")
+    with get_conn() as conn:
+        max_order = conn.execute(
+            "SELECT COALESCE(MAX(sort_order), -1) AS m FROM repo_folders WHERE user_id=?", (user["id"],)
+        ).fetchone()["m"]
+        cur = conn.execute(
+            "INSERT INTO repo_folders (user_id, name, sort_order) VALUES (?, ?, ?)",
+            (user["id"], name, max_order + 1),
+        )
+        folder_id = cur.lastrowid
+    return {"id": folder_id, "name": name, "repo_count": 0}
+
+
+@router.patch("/folders/{folder_id}")
+def rename_folder(folder_id: int, req: FolderRenameRequest, user=Depends(get_current_user)):
+    name = req.name.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Folder name can't be empty")
+    with get_conn() as conn:
+        _owned_folder_or_404(conn, folder_id, user["id"])
+        conn.execute("UPDATE repo_folders SET name=? WHERE id=?", (name, folder_id))
+    return {"id": folder_id, "name": name}
+
+
+@router.delete("/folders/{folder_id}")
+def delete_folder(folder_id: int, user=Depends(get_current_user)):
+    """Deletes the folder only -- repos inside it are un-filed (folder_id
+    set to NULL by the FK), never deleted."""
+    with get_conn() as conn:
+        _owned_folder_or_404(conn, folder_id, user["id"])
+        conn.execute("DELETE FROM repo_folders WHERE id=?", (folder_id,))
+    return {"deleted": folder_id}
 
 
 def _build_file_tree(rows: list[dict]) -> list[dict]:

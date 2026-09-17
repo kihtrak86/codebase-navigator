@@ -34,11 +34,11 @@ export class UserService {
     assert set(names) == {"UserService", "UserService.constructor", "UserService.updateUser", "UserService.validate"}
     assert names["UserService.updateUser"].parent_qualified_name == "UserService"
     # this.validate(data): receiver is `this`, so it's typed to the
-    # enclosing class rather than landing in the generic `calls` list.
+                                                                      
     assert ("UserService", "validate") in names["UserService.updateUser"].typed_calls
     assert "validate" not in names["UserService.updateUser"].calls
-    # this.repo.save(...): receiver is `this.repo`, a chained attribute,
-    # not a direct `this` -- stays untyped, same as before.
+                                                                        
+                                                           
     assert "save" in names["UserService.updateUser"].calls
 
 
@@ -88,7 +88,7 @@ function Signup() {
     result = parse_js_file(src, "Signup.jsx")
     names = {s.qualified_name: s for s in result.symbols}
     assert "signup" in names["Signup"].local_bindings
-    # handleSubmit must inherit it too, even though it's nested and doesn't declare it itself
+                                                                                             
     assert "signup" in names["Signup.handleSubmit"].local_bindings
 
 
@@ -108,10 +108,10 @@ export function Outer() {
     names = {s.qualified_name: s for s in result.symbols}
     assert set(names) == {"Outer", "Outer.middle", "Outer.middle.inner"}
     assert names["Outer.middle.inner"].calls == ["doSomething"]
-    # the outer scopes' own calls must NOT include what only happens inside nested closures
+                                                                                           
     assert "doSomething" not in names["Outer"].calls
     assert "doSomething" not in names["Outer.middle"].calls
-    assert "inner" not in names["Outer"].calls  # only middle's own call, not folded upward
+    assert "inner" not in names["Outer"].calls                                             
 
 
 def test_sibling_nested_functions_do_not_leak_scope():

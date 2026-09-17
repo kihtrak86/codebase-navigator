@@ -110,7 +110,7 @@ def forgot_password(req: ForgotPasswordRequest):
     return {
         "ok": True,
         "message": "If an account exists for that email, a reset link has been issued.",
-        "dev_reset_token": token,  # None if no such account
+        "dev_reset_token": token,                           
     }
 
 
@@ -169,7 +169,7 @@ def delete_account_route(req: DeleteAccountRequest, request: Request, user: dict
         auth.delete_account(user["id"], req.current_password)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    request.session.clear()  # the account is gone; the cookie shouldn't outlive it
+    request.session.clear()                                                        
     return {"ok": True}
 
 

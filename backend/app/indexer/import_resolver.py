@@ -40,7 +40,7 @@ def _resolve_python_module(current_relpath: str, spec: str, known: set[str]) -> 
         level = 0
         while level < len(spec) and spec[level] == ".":
             level += 1
-        remainder = spec[level:]  # e.g. "models" from "..models", or "" from "."
+        remainder = spec[level:]                                                 
         base_dir = os.path.dirname(current_relpath)
         for _ in range(level - 1):
             base_dir = os.path.dirname(base_dir)

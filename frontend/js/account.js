@@ -36,7 +36,7 @@ function show(id, message, isError) {
   const el = document.getElementById(id);
   el.textContent = message;
   el.classList.remove("hidden");
-  // clear the opposite banner so a success and a stale error can't both show
+                                                                             
   document.getElementById(isError ? id.replace("Error", "Success") : id.replace("Success", "Error"))
     ?.classList.add("hidden");
 }
@@ -91,8 +91,8 @@ async function submitDeleteAccount(event) {
     errEl.classList.remove("hidden");
     return;
   }
-  // Second, explicit gate: the typed confirmation is deliberate, but this is
-  // irreversible and takes every indexed repo with it.
+                                                                             
+                                                       
   if (!window.confirm("This permanently deletes your account and every repository you've indexed. This cannot be undone.")) return;
 
   try {

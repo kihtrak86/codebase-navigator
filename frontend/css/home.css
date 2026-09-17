@@ -3,9 +3,10 @@ body { overflow-x: hidden; }
   display: flex; align-items: center; justify-content: space-between;
   padding: 20px 32px; border-bottom: 1px solid var(--border-soft);
 }
-.home-header nav { display: flex; gap: 10px; }
+.home-header nav { display: flex; align-items: center; gap: 10px; }
+.nav-email { font-size: 13px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; margin-right: 2px; }
 
-/* ---------- Hero: split, headline+CTAs left, rendered call-graph image right ---------- */
+                                                                                            
 .hero {
   display: grid; grid-template-columns: 1fr 470px; align-items: center; gap: 48px;
   max-width: 1180px; margin: 0 auto; padding: 56px 32px 64px;
@@ -19,38 +20,63 @@ body { overflow-x: hidden; }
 }
 .hero-ctas { display: flex; gap: 12px; margin-bottom: 28px; }
 .hero-ctas button { padding: 13px 26px; font-size: 14px; }
-.hero-note { font-size: 12.5px; color: var(--text-faint); }
+.hero-note { font-size: 13px; color: var(--text-dim); }
 .hero-image { width: 100%; }
 .hero-image img { width: 100%; height: auto; display: block; }
 
 .feature-grid {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
-  background: var(--border-soft); border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft);
+  background: var(--border-soft); border: 1px solid var(--border-soft); border-radius: 12px; overflow: hidden;
 }
-.feature-card { background: var(--bg); padding: 30px 26px; }
+.feature-card { background: var(--bg); padding: 26px 24px; }
 .feature-card .n { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-faint); margin-bottom: 14px; }
 .feature-card h3 { font-size: 16px; font-weight: 700; margin: 0 0 8px; }
-.feature-card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin: 0; }
+.feature-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin: 0; }
 
-/* ---------- How it works ---------- */
+                                        
 .home-section { padding: 76px 32px; max-width: 1080px; margin: 0 auto; }
 .home-section-head { text-align: center; margin-bottom: 46px; }
-.home-section-head .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-faint); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.home-section-head .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-faint); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
 .home-section-head h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.015em; margin: 0 0 10px; }
-.home-section-head p { color: var(--text-dim); font-size: 14.5px; max-width: 480px; margin: 0 auto; line-height: 1.6; }
+.home-section-head p { color: var(--text-dim); font-size: 15px; max-width: 480px; margin: 0 auto; line-height: 1.6; }
 
 .steps-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
 .step-card { position: relative; padding: 26px 22px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--surface); }
 .step-card .step-n { width: 30px; height: 30px; border: 1.5px solid #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 13px; margin-bottom: 16px; }
 .step-card h3 { font-size: 15px; font-weight: 700; margin: 0 0 8px; }
-.step-card p { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin: 0; }
+.step-card p { font-size: 13.5px; color: var(--text-dim); line-height: 1.6; margin: 0; }
 
 .persona-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .persona-card { border: 1px solid var(--border-soft); border-radius: 10px; padding: 18px; text-align: center; }
 .persona-card .glyph-mark { width: 26px; height: 26px; margin: 0 auto 12px; border: 1.5px solid var(--text-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); }
-.persona-card p { font-size: 12.5px; color: var(--text-dim); line-height: 1.55; margin: 0; }
+.persona-card p { font-size: 13px; color: var(--text-dim); line-height: 1.55; margin: 0; }
 
-.home-footer { text-align: center; padding: 26px; color: var(--text-faint); font-size: 12px; border-top: 1px solid var(--border-soft); }
+                                                   
+.cta-band {
+  max-width: 640px; margin: 0 auto 76px; padding: 44px 32px;
+  text-align: center; border: 1px solid var(--border-soft); border-radius: 16px;
+  background: var(--surface);
+}
+.cta-band h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.015em; margin: 0 0 10px; }
+.cta-band p { font-size: 14px; color: var(--text-dim); margin: 0 0 22px; line-height: 1.5; }
+.cta-band button { padding: 12px 28px; font-size: 14px; }
+
+                                  
+.home-footer { border-top: 1px solid var(--border-soft); padding: 28px 32px 30px; }
+.home-footer-top {
+  max-width: 1080px; margin: 0 auto; display: flex; align-items: center;
+  justify-content: space-between; padding-bottom: 18px; margin-bottom: 18px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.home-footer-top #footerLogo .site-logo { opacity: 0.8; }
+.home-footer-nav { display: flex; gap: 22px; }
+.home-footer-nav a { font-size: 13px; font-weight: 600; color: var(--text-dim); text-decoration: none; }
+.home-footer-nav a:hover { color: var(--text); }
+.home-footer-bottom {
+  max-width: 1080px; margin: 0 auto; display: flex; align-items: center;
+  justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  color: var(--text-faint); font-size: 12.5px;
+}
 
 @media (max-width: 900px) {
   .hero { grid-template-columns: 1fr; padding-top: 48px; }
@@ -58,4 +84,6 @@ body { overflow-x: hidden; }
   .steps-row, .persona-grid { grid-template-columns: 1fr; }
   .hero-copy h1 { font-size: 34px; }
   .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .cta-band { margin-left: 20px; margin-right: 20px; padding: 34px 22px; }
+  .home-footer-top, .home-footer-bottom { flex-direction: column; align-items: flex-start; gap: 14px; }
 }

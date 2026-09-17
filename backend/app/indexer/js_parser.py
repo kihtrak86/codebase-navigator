@@ -79,8 +79,8 @@ _IMPORT_NAMESPACE_RE = re.compile(
 _IMPORT_DEFAULT_NAMED_RE = re.compile(
     r"""import\s+(?:type\s+)?"""
     r"""(?:([A-Za-z_$][\w$]*)\s*,\s*)?"""          # 1: default name, only when followed by a comma
-    r"""(?:\{([^}]*)\}|([A-Za-z_$][\w$]*))?"""     # 2: named-imports blob  OR  3: bare default name
-    r"""\s*from\s*["']([^"']+)["']"""               # 4: module specifier
+    r"""(?:\{([^}]*)\}|([A-Za-z_$][\w$]*))?"""                                                      
+    r"""\s*from\s*["']([^"']+)["']"""                                    
 )
 _REQUIRE_DESTRUCTURE_RE = re.compile(
     r"""(?:const|let|var)\s*\{([^}]*)\}\s*=\s*require\(\s*["']([^"']+)["']\s*\)"""
@@ -94,12 +94,12 @@ _FUNC_DECL_RE = re.compile(
 )
 _CONST_ARROW_BLOCK_RE = re.compile(
     r"^\s*(?:export\s+)?(?:default\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*"
-    r"(?:[A-Za-z_$][\w$]*\(\s*)?"   # optional wrapping call, e.g. useCallback( / useMemo(
+    r"(?:[A-Za-z_$][\w$]*\(\s*)?"                                                         
     r"(?:async\s+)?(\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>\s*\{"
 )
 _CONST_ARROW_CONCISE_RE = re.compile(
     r"^\s*(?:export\s+)?(?:default\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*"
-    r"(?:[A-Za-z_$][\w$]*\(\s*)?"   # optional wrapping call, e.g. useCallback( / useMemo(
+    r"(?:[A-Za-z_$][\w$]*\(\s*)?"                                                         
     r"(?:async\s+)?(\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>\s*(?!\{)(.+)$"
 )
 _CLASS_RE = re.compile(
@@ -240,7 +240,7 @@ def _mask_non_code(source: str) -> str:
     signature regexes aren't confused by braces or keywords inside them."""
     out = []
     i, n = 0, len(source)
-    state = None  # None | 'line_comment' | 'block_comment' | 'string'
+    state = None                                                      
     quote = None
     while i < n:
         c = source[i]
@@ -279,7 +279,7 @@ def _mask_non_code(source: str) -> str:
             out.append("\n" if c == "\n" else " ")
             i += 1
             continue
-        # normal code
+                     
         if c == "/" and nxt == "/":
             out.append("  ")
             i += 2
@@ -359,7 +359,7 @@ def _extract_calls(masked_body_lines: list[str], enclosing_class: str | None = N
             if not name or name in _JS_KEYWORDS_NOT_CALLS:
                 continue
             if any(start <= m.start(1) < end for start, end in attr_spans):
-                continue  # already handled (typed or not) by the attribute-call pass above
+                continue                                                                   
             calls.append(name)
 
     return calls, typed_calls
@@ -406,7 +406,7 @@ def _find_nested_regions(masked_lines: list[str], body_start: int, body_end: int
                 regions.append({"kind": "block", "name": func_match.group(1), "start": j, "end": nested_end,
                                  "param_blob": func_match.group(2)})
                 j = nested_end + 1
-                continue  # depth unchanged: skipped body is balanced
+                continue                                             
 
             if arrow_block_match:
                 nested_end = _find_block_end(masked_lines, j)
@@ -489,7 +489,7 @@ def _build_block_symbol(
             )
             nested.append(sub_symbol)
             nested.extend(grandchildren)
-        else:  # concise: no body to recurse into further
+        else:                                            
             r_calls, r_typed_calls = _extract_calls([r["expr_line"]], enclosing_class)
             nested.append(ExtractedSymbol(
                 name=r["name"], qualified_name=child_qname, type="function",
@@ -570,7 +570,7 @@ def parse_js_file(source: str, relpath: str) -> ExtractedFile:
                                 result.symbols.append(symbol)
                                 result.symbols.extend(nested)
                                 j = meth_end + 1
-                                continue  # inner_depth unchanged: skipped body is balanced
+                                continue                                                   
                         inner_depth += inner_line.count("{") - inner_line.count("}")
                         j += 1
                     i = body_end + 1

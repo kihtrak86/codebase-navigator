@@ -1,20 +1,20 @@
 renderLogo(document.getElementById("navLogo"), { href: "/" });
 
 let authMode = "login";
-let lastResetToken = null; // carried from 'forgot' step into 'reset' step (dev mode, no email)
+let lastResetToken = null;                                                                     
 
 (async () => {
   const params = new URLSearchParams(window.location.search);
   const requested = params.get("mode");
-  // Set up the form FIRST, so a failed/slow session check can never leave the
-  // page in its default half-hidden state with no usable form.
+                                                                              
+                                                               
   setAuthMode(["login", "signup", "forgot", "reset"].includes(requested) ? requested : "login");
 
   try {
-    await redirectIfAuthed("/app.html"); // already signed in? skip the form entirely
+    await redirectIfAuthed("/app.html");                                             
   } catch {
-    // Session check failed (offline, backend down). Staying on the form is the
-    // right fallback -- signing in again is harmless if they had a session.
+                                                                               
+                                                                            
   }
 })();
 
@@ -66,7 +66,7 @@ function setAuthMode(mode) {
     if (lastResetToken) document.getElementById("authToken").value = lastResetToken;
   }
 
-  // reflect the current mode in the URL so a refresh/share keeps the right form
+                                                                                
   const url = new URL(window.location.href);
   url.searchParams.set("mode", mode);
   window.history.replaceState({}, "", url);

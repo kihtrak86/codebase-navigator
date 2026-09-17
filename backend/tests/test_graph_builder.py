@@ -146,8 +146,8 @@ function secret() { return 42; }  // the real, unrelated top-level `secret`
     index_repository(repo_path, user_id=test_user["id"])
     sid = _symbol_id("secret")
     callers = analysis.get_callers(sid)
-    # helperB's call to secret() must resolve to the real top-level `secret`,
-    # not be silently dropped because of a bogus inherited shadow from its sibling helperA.
+                                                                             
+                                                                                           
     assert {c["qualified_name"] for c in callers} == {"Outer.helperB"}
 
 
@@ -167,9 +167,9 @@ function useCallback() { return "not the real react hook"; }
     })
 
     index_repository(repo_path, user_id=test_user["id"])
-    sid = _symbol_id("useCallback")  # the repo-local decoy, not react's
+    sid = _symbol_id("useCallback")                                     
     callers = analysis.get_callers(sid)
-    assert callers == []  # Component's call must NOT resolve here
+    assert callers == []                                          
 
 
 def test_ambiguous_names_above_threshold_are_left_unresolved(make_repo, test_user):
@@ -180,8 +180,8 @@ def test_ambiguous_names_above_threshold_are_left_unresolved(make_repo, test_use
     same-named candidates repo-wide must be left unresolved by the
     repo-wide fallback rather than linked to all of them."""
     files = {}
-    # 12 unrelated classes, each with its own same-named `overloaded` method --
-    # deliberately over the threshold (10)
+                                                                               
+                                          
     for i in range(12):
         files[f"mod{i}.py"] = f"class C{i}:\n    def overloaded(self):\n        return {i}\n"
     files["caller.py"] = "def caller():\n    overloaded()\n"
@@ -205,7 +205,7 @@ def test_small_scale_ambiguity_still_resolves_via_fallback(make_repo, test_user)
     index_repository(repo_path, user_id=test_user["id"])
     sid = _symbol_id("caller")
     callees = analysis.get_callees(sid)
-    assert len(callees) == 2  # both `shared` definitions, since 2 is well under the threshold
+    assert len(callees) == 2                                                                  
     assert all(c["qualified_name"] == "shared" for c in callees)
     assert {c["path"] for c in callees} == {"small_a.py", "small_b.py"}
 
@@ -217,7 +217,7 @@ def test_reindexing_same_url_replaces_rather_than_duplicates(make_repo, test_use
     with get_conn() as conn:
         rows = conn.execute("SELECT id FROM repositories WHERE url = ?", (repo_path,)).fetchall()
     assert len(rows) == 1
-    assert r2["repository_id"] != r1["repository_id"]  # old row deleted, new one inserted
+    assert r2["repository_id"] != r1["repository_id"]                                     
 
 
 def test_attribute_call_resolves_to_specific_class_not_every_namesake(make_repo, test_user):

@@ -77,7 +77,7 @@ class _CallCollector(ast.NodeVisitor):
         return None
 
     def visit_FunctionDef(self, node):
-        pass  # don't descend into nested defs; they're separate symbols
+        pass                                                            
 
     def visit_AsyncFunctionDef(self, node):
         pass
@@ -156,7 +156,7 @@ def parse_python_file(source: str, relpath: str) -> ExtractedFile:
     try:
         tree = ast.parse(source, filename=relpath)
     except SyntaxError:
-        return result  # skip unparsable files rather than failing the whole index
+        return result                                                             
 
     file_is_test = _is_test_file(relpath)
 
@@ -169,7 +169,7 @@ def parse_python_file(source: str, relpath: str) -> ExtractedFile:
             module_str = ("." * node.level) + (node.module or "")
             for alias in node.names:
                 if alias.name == "*":
-                    continue  # star imports can't be resolved to a specific name
+                    continue                                                     
                 local_name = alias.asname or alias.name
                 result.imports.append(ImportBinding(local_name=local_name, module=module_str, orig_name=alias.name))
 

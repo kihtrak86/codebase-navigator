@@ -1,16 +1,17 @@
 let currentRepo = null;
 let currentFile = null;
 let currentSymbol = null;
+let collapsedFolders = new Set(JSON.parse(localStorage.getItem("cn_collapsed_folders") || "[]"));
 
 (async () => {
   renderLogo(document.getElementById("navLogo"), { href: "/app.html" });
 
   let user;
   try {
-    user = await requireAuth(); // redirects to /auth.html if not signed in
+    user = await requireAuth();                                            
   } catch {
-    // Couldn't reach the backend. Don't bounce to the login page (they may
-    // well have a valid session) -- say what happened and let them retry.
+                                                                           
+                                                                          
     setStatus("Couldn't reach the server. Check that the backend is running, then reload.", { err: true });
     return;
   }
@@ -22,7 +23,7 @@ let currentSymbol = null;
   await loadRepos();
 })();
 
-/* ---------------- Account menu ---------------- */
+                                                    
 
 async function doLogout() {
   document.getElementById("accountDropdown").classList.add("hidden");
@@ -36,7 +37,7 @@ function toggleAccountMenu(event) {
 }
 document.addEventListener("click", () => document.getElementById("accountDropdown")?.classList.add("hidden"));
 
-/* ---------------- Repo / file / symbol browsing ---------------- */
+                                                                     
 
 function setStatus(msg, opts) {
   opts = opts || {};
@@ -68,22 +69,197 @@ async function runIndex(url) {
   }
 }
 
+function saveCollapsedFolders() {
+  localStorage.setItem("cn_collapsed_folders", JSON.stringify([...collapsedFolders]));
+}
+
+let lastFolders = [];
+
+function repoCardHtml(r, folders) {
+  const initial = (r.name || "?").charAt(0).toUpperCase();
+  return `<div class="repo-card${r.id === currentRepo ? ' active' : ''}" draggable="true" data-id="${r.id}"
+             ondragstart="onRepoDragStart(event, ${r.id})" ondragend="onRepoDragEnd(event)" onclick="selectRepo(${r.id})">
+    <div class="repo-mark">${esc(initial)}</div>
+    <div class="repo-main">
+      <div class="repo-name" title="${esc(r.name)}">${esc(r.name)}</div>
+      <div class="repo-sub">${r.symbol_count} symbols</div>
+    </div>
+    <div class="repo-actions">
+      <button class="icon-btn" title="Move to folder" onclick="event.stopPropagation(); openRepoMenu(event, ${r.id}, ${r.folder_id == null ? 'null' : r.folder_id})">&#8942;</button>
+      <button class="icon-btn" title="Re-index" onclick="event.stopPropagation(); reindexRepo('${esc(r.url).replace(/'/g, "\\'")}')">&#8635;</button>
+      <button class="icon-btn" title="Delete repository" onclick="event.stopPropagation(); deleteRepo(${r.id})">&times;</button>
+    </div>
+  </div>`;
+}
+
+                                                                           
+                                                                     
+                                                                      
+                                                                    
+function closeRepoMenus() {
+  document.getElementById("repoMoveMenu")?.remove();
+  window.removeEventListener("scroll", closeRepoMenus, true);
+}
+document.addEventListener("click", closeRepoMenus);
+
+function openRepoMenu(event, repoId, currentFolderId) {
+  const btn = event.currentTarget;
+  const wasOpenForThisRepo = document.getElementById("repoMoveMenu")?.dataset.repoId === String(repoId);
+  closeRepoMenus();
+  if (wasOpenForThisRepo) return;                                                  
+
+  const menu = document.createElement("div");
+  menu.id = "repoMoveMenu";
+  menu.className = "repo-menu";
+  menu.dataset.repoId = String(repoId);
+  menu.innerHTML = `<div class="repo-menu-label">Move to</div>` +
+    `<button type="button" class="repo-menu-item${currentFolderId == null ? ' current' : ''}">Unfiled</button>` +
+    lastFolders.map(f => `<button type="button" class="repo-menu-item${f.id === currentFolderId ? ' current' : ''}" data-folder-id="${f.id}">${esc(f.name)}</button>`).join("");
+
+  menu.querySelectorAll(".repo-menu-item").forEach(item => {
+    item.addEventListener("click", (e) => {
+      e.stopPropagation();
+      moveRepo(repoId, item.dataset.folderId ?? "");
+      closeRepoMenus();
+    });
+  });
+
+  document.body.appendChild(menu);
+  const r = btn.getBoundingClientRect();
+  const menuWidth = menu.offsetWidth;
+  menu.style.top = `${r.bottom + 6}px`;
+  menu.style.left = `${Math.min(r.right - menuWidth, window.innerWidth - menuWidth - 8)}px`;
+  window.addEventListener("scroll", closeRepoMenus, true);
+}
+
 async function loadRepos() {
-  const repos = await api("/repos");
+  const [repos, folders] = await Promise.all([api("/repos"), api("/folders")]);
+  lastFolders = folders;
   const panel = document.getElementById("repoPanel");
-  panel.innerHTML = `<div class="section-label"><span class="dot"></span>Repositories</div>` +
-    (repos.length ? repos.map(r => {
-      const initial = (r.name || "?").charAt(0).toUpperCase();
-      return `<div class="repo-card${r.id === currentRepo ? ' active' : ''}" data-id="${r.id}" onclick="selectRepo(${r.id})">
-        <div class="repo-mark">${esc(initial)}</div>
-        <div class="repo-main">
-          <div class="repo-name" title="${esc(r.name)}">${esc(r.name)}</div>
-          <div class="repo-sub">${r.symbol_count} symbols</div>
-        </div>
-        <button class="repo-del" title="Re-index" onclick="event.stopPropagation(); reindexRepo('${esc(r.url).replace(/'/g, "\\'")}')" style="font-size:13px;">&#8635;</button>
-        <button class="repo-del" title="Delete repository" onclick="event.stopPropagation(); deleteRepo(${r.id})">&times;</button>
-      </div>`;
-    }).join("") : `<div class="empty-state">No repositories indexed yet.<br>Paste a GitHub URL above to get started.</div>`);
+
+  const byFolder = new Map(folders.map(f => [f.id, []]));
+  const unfiled = [];
+  for (const r of repos) {
+    if (r.folder_id != null && byFolder.has(r.folder_id)) byFolder.get(r.folder_id).push(r);
+    else unfiled.push(r);
+  }
+
+  const folderHtml = folders.map(f => {
+    const items = byFolder.get(f.id) || [];
+    const collapsed = collapsedFolders.has(f.id);
+    return `<div class="folder-group" data-folder-id="${f.id}"
+                 ondragover="onFolderDragOver(event)" ondragenter="onFolderDragEnter(event)"
+                 ondragleave="onFolderDragLeave(event)" ondrop="onFolderDrop(event, ${f.id})">
+      <div class="folder-row" onclick="toggleFolderGroup(${f.id})">
+        <span class="tree-caret${collapsed ? '' : ' open'}">&#9656;</span>
+        <span class="folder-icon"></span>
+        <span class="folder-name" title="${esc(f.name)}">${esc(f.name)}</span>
+        <span class="tree-count">${items.length}</span>
+        <button class="icon-btn folder-action" title="Rename folder" onclick="event.stopPropagation(); renameFolder(${f.id}, '${esc(f.name).replace(/'/g, "\\'")}')">&#9998;</button>
+        <button class="icon-btn folder-action" title="Delete folder" onclick="event.stopPropagation(); deleteFolder(${f.id}, '${esc(f.name).replace(/'/g, "\\'")}')">&times;</button>
+      </div>
+      <div class="folder-items${collapsed ? ' hidden' : ''}">
+        ${items.length ? items.map(r => repoCardHtml(r, folders)).join("") : `<div class="folder-drop-hint">Drag a repository here</div>`}
+      </div>
+    </div>`;
+  }).join("");
+
+  panel.innerHTML =
+    `<div class="section-label"><span class="dot"></span>Repositories</div>` +
+    `<button class="ghost new-folder-btn" onclick="createFolder()">+ New folder</button>` +
+    folderHtml +
+    `<div class="folder-group unfiled-group" ondragover="onFolderDragOver(event)" ondragenter="onFolderDragEnter(event)"
+          ondragleave="onFolderDragLeave(event)" ondrop="onFolderDrop(event, null)">
+       ${folders.length ? `<div class="section-label unfiled-label">Unfiled</div>` : ''}
+       ${unfiled.length ? unfiled.map(r => repoCardHtml(r, folders)).join("")
+                         : (repos.length ? `<div class="empty-state">No unfiled repositories.</div>`
+                                          : `<div class="empty-state">No repositories indexed yet.<br>Paste a GitHub URL above to get started.</div>`)}
+     </div>`;
+}
+
+                                                         
+
+async function createFolder() {
+  const name = await modalPrompt("New folder", "", "Group related repositories together.");
+  if (!name) return;
+  try {
+    await api("/folders", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+    await loadRepos();
+  } catch (e) {
+    setStatus(e.message, { err: true });
+  }
+}
+
+async function renameFolder(folderId, currentName) {
+  const name = await modalPrompt("Rename folder", currentName);
+  if (!name || name === currentName) return;
+  try {
+    await api(`/folders/${folderId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+    await loadRepos();
+  } catch (e) {
+    setStatus(e.message, { err: true });
+  }
+}
+
+async function deleteFolder(folderId, folderName) {
+  const ok = await modalConfirm(
+    "Delete folder?",
+    `"${esc(folderName)}" will be removed. Repositories inside it become unfiled — nothing is deleted.`,
+    "Delete folder"
+  );
+  if (!ok) return;
+  await api(`/folders/${folderId}`, { method: "DELETE" });
+  collapsedFolders.delete(folderId);
+  saveCollapsedFolders();
+  await loadRepos();
+}
+
+function toggleFolderGroup(folderId) {
+  if (collapsedFolders.has(folderId)) collapsedFolders.delete(folderId);
+  else collapsedFolders.add(folderId);
+  saveCollapsedFolders();
+  loadRepos();
+}
+
+async function moveRepo(repoId, folderIdRaw) {
+  const folder_id = folderIdRaw === "" ? null : Number(folderIdRaw);
+  try {
+    await api(`/repos/${repoId}/folder`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ folder_id }) });
+    await loadRepos();
+  } catch (e) {
+    setStatus(e.message, { err: true });
+  }
+}
+
+                                                                           
+                                                                         
+                                                                         
+                                                                           
+                                                       
+function onRepoDragStart(event, repoId) {
+  event.dataTransfer.setData("text/plain", String(repoId));
+  event.dataTransfer.effectAllowed = "move";
+  requestAnimationFrame(() => event.target.classList.add("dragging"));
+}
+function onRepoDragEnd(event) {
+  event.target.classList.remove("dragging");
+  document.querySelectorAll(".folder-group.drag-over").forEach(el => el.classList.remove("drag-over"));
+}
+function onFolderDragOver(event) {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+}
+function onFolderDragEnter(event) {
+  event.currentTarget.classList.add("drag-over");
+}
+function onFolderDragLeave(event) {
+  if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.classList.remove("drag-over");
+}
+function onFolderDrop(event, folderId) {
+  event.preventDefault();
+  event.currentTarget.classList.remove("drag-over");
+  const repoId = Number(event.dataTransfer.getData("text/plain"));
+  if (repoId) moveRepo(repoId, folderId === null ? "" : String(folderId));
 }
 
 async function deleteRepo(repoId) {
@@ -132,12 +308,12 @@ async function selectRepo(repoId) {
   document.getElementById("detail").innerHTML = emptyDetailState();
 }
 
-/* ---------------- File tree ---------------- */
+                                                 
 
-/* Depth drives indentation only; the nesting itself comes from the
-   server's tree structure. Top-level folders start open so the panel
-   isn't a wall of collapsed rows on first view, deeper ones start
-   closed so a deep project doesn't explode into hundreds of lines. */
+                                                                   
+                                                                     
+                                                                  
+                                                                      
 function renderTree(nodes, depth) {
   return nodes.map(node => {
     const pad = 6 + depth * 13;
@@ -314,7 +490,7 @@ async function selectSymbol(symbolId) {
   `;
 }
 
-/* ---------------- Graph visualization (D3, monochrome) ---------------- */
+                                                                            
 
 async function renderGraph(symbolId) {
   const svg = d3.select("#graphSvg");

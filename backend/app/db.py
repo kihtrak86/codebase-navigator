@@ -21,6 +21,18 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TEXT DEFAULT (datetime('now'))
 );
 
+-- User-defined folders for organizing indexed repositories, the way a file
+-- manager groups files. A repo with folder_id NULL just sits "unfiled" in
+-- the top-level list -- folders are an optional grouping layer, not a
+-- required home, so nothing else about a repo's behavior depends on one.
+CREATE TABLE IF NOT EXISTS repo_folders (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now')),
+    sort_order INTEGER DEFAULT 0
+);
+
 CREATE TABLE IF NOT EXISTS repositories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -30,7 +42,11 @@ CREATE TABLE IF NOT EXISTS repositories (
     created_at TEXT DEFAULT (datetime('now')),
     file_count INTEGER DEFAULT 0,
     symbol_count INTEGER DEFAULT 0,
-    dependency_count INTEGER DEFAULT 0
+    dependency_count INTEGER DEFAULT 0,
+    -- ON DELETE SET NULL: deleting a folder un-files its repos rather than
+    -- deleting them -- a folder is just a label, not a container the repos
+    -- live inside.
+    folder_id INTEGER REFERENCES repo_folders(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS files (
@@ -93,6 +109,8 @@ CREATE INDEX IF NOT EXISTS idx_deps_source ON dependencies(source_symbol_id);
 CREATE INDEX IF NOT EXISTS idx_deps_target ON dependencies(target_symbol_id);
 CREATE INDEX IF NOT EXISTS idx_files_repo ON files(repository_id);
 CREATE INDEX IF NOT EXISTS idx_repos_user ON repositories(user_id);
+CREATE INDEX IF NOT EXISTS idx_repos_folder ON repositories(folder_id);
+CREATE INDEX IF NOT EXISTS idx_folders_user ON repo_folders(user_id);
 CREATE INDEX IF NOT EXISTS idx_reset_tokens_hash ON password_reset_tokens(token_hash);
 """
 
@@ -100,6 +118,14 @@ CREATE INDEX IF NOT EXISTS idx_reset_tokens_hash ON password_reset_tokens(token_
 def init_db():
     with get_conn() as conn:
         conn.executescript(SCHEMA)
+        # Migration for DBs created before folders existed: CREATE TABLE IF
+                                                                   
+                                                                         
+                             
+        try:
+            conn.execute("ALTER TABLE repositories ADD COLUMN folder_id INTEGER REFERENCES repo_folders(id) ON DELETE SET NULL")
+        except sqlite3.OperationalError:
+            pass
 
 
 @contextmanager

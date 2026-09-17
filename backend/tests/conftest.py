@@ -22,10 +22,10 @@ def temp_db(tmp_path, monkeypatch):
     monkeypatch.setattr(db_module, "DB_PATH", str(db_path))
     db_module.init_db()
     # login-rate-limit state is a module-level dict (see auth.py) so it
-    # doesn't leak failed-attempt counts between otherwise-isolated tests
+                                                                         
     monkeypatch.setattr(auth_module, "_login_attempts", {})
     yield
-    # tmp_path cleanup is handled by pytest itself
+                                                  
 
 
 @pytest.fixture

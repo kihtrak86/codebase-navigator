@@ -52,7 +52,7 @@ def handler(request, uid):
     result = parse_python_file(src, "a.py")
     fn = result.symbols[0]
     assert {"request", "uid", "user"} <= fn.local_bindings
-    assert "save" in fn.calls  # attribute call is still recorded; shadowing is graph_builder's job
+    assert "save" in fn.calls                                                                      
 
 
 def test_is_test_file_detection():
@@ -60,7 +60,7 @@ def test_is_test_file_detection():
     assert result.symbols[0].is_test is True
 
     result2 = parse_python_file("def test_foo():\n    pass\n", "app.py")
-    assert result2.symbols[0].is_test is True  # name-based detection still applies
+    assert result2.symbols[0].is_test is True                                      
 
     result3 = parse_python_file("def helper():\n    pass\n", "app.py")
     assert result3.symbols[0].is_test is False

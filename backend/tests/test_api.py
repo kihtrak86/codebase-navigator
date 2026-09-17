@@ -29,7 +29,7 @@ def test_signup_then_login_flow():
     assert res.status_code == 200
     assert res.json()["email"] == "new@example.com"
 
-    # signed in immediately after signup
+                                        
     assert client.get("/api/auth/me").json()["email"] == "new@example.com"
 
     client.post("/api/auth/logout")
@@ -67,7 +67,7 @@ def test_login_rate_limited_after_repeated_failures():
     for _ in range(5):
         res = client.post("/api/auth/login", json={"email": "locked@example.com", "password": "wrong password"})
         assert res.status_code == 401
-    # 6th attempt, even with the correct password, is rate-limited
+                                                                  
     res = client.post("/api/auth/login", json={"email": "locked@example.com", "password": "correct horse battery staple"})
     assert res.status_code == 429
 
@@ -102,7 +102,7 @@ def test_reset_password_with_valid_token_then_login():
     res = client.post("/api/auth/reset-password", json={"token": token, "password": "brand new password"})
     assert res.status_code == 200
 
-    # old password no longer works, new one does
+                                                
     assert client.post("/api/auth/login", json={"email": "reset@example.com", "password": "old password here"}).status_code == 401
     assert client.post("/api/auth/login", json={"email": "reset@example.com", "password": "brand new password"}).status_code == 200
 
@@ -217,7 +217,7 @@ def test_cannot_access_another_users_repo_or_symbols(make_repo):
     assert client_b.get(f"/api/repos/{repo_id}/tree").status_code == 404
     assert client_b.get(f"/api/symbols/{symbol_id}").status_code == 404
     assert client_b.delete(f"/api/repos/{repo_id}").status_code == 404
-    # and user A's own list must not be affected by B's attempts
+                                                                
     assert any(r["id"] == repo_id for r in client_a.get("/api/repos").json())
 
 
@@ -232,7 +232,7 @@ def test_delete_repo(authed_client, make_repo):
     assert all(r["id"] != repo_id for r in res.json())
 
     res = authed_client.delete(f"/api/repos/{repo_id}")
-    assert res.status_code == 404  # already gone
+    assert res.status_code == 404                
 
 
 def test_reindexing_replaces_not_duplicates_via_api(authed_client, make_repo):
@@ -245,9 +245,9 @@ def test_reindexing_replaces_not_duplicates_via_api(authed_client, make_repo):
     assert len(matching) == 1
 
 
-# ---------------------------------------------------------------------------
-# Nested file tree (round nine)
-# ---------------------------------------------------------------------------
+                                                                             
+                               
+                                                                             
 
 def test_build_file_tree_nests_folders_and_rolls_up_counts():
     """Unit test on the pure function, so tree shape is verified without
@@ -260,16 +260,16 @@ def test_build_file_tree_nests_folders_and_rolls_up_counts():
     ]
     tree = routes._build_file_tree(rows)
 
-    # dirs before files, each group alphabetical
+                                                
     assert [n["name"] for n in tree] == ["src", "README.md"]
 
     src = tree[0]
     assert src["type"] == "dir"
-    assert src["file_count"] == 3 and src["symbol_count"] == 10  # rolled up from both levels
+    assert src["file_count"] == 3 and src["symbol_count"] == 10                              
     assert [n["name"] for n in src["children"]] == ["auth", "api.py"]
 
     auth_dir = src["children"][0]
-    assert auth_dir["path"] == "src/auth"           # full path, not just the segment
+    assert auth_dir["path"] == "src/auth"                                            
     assert auth_dir["file_count"] == 2 and auth_dir["symbol_count"] == 5
     assert [n["name"] for n in auth_dir["children"]] == ["login.py", "user.py"]
     assert all(n["type"] == "file" for n in auth_dir["children"])
@@ -306,9 +306,9 @@ def test_tree_of_another_users_repo_is_404(authed_client, make_repo):
     assert authed_client.get(f"/api/repos/{repo_id}/tree").status_code == 404
 
 
-# ---------------------------------------------------------------------------
-# Account module (round nine)
-# ---------------------------------------------------------------------------
+                                                                             
+                             
+                                                                             
 
 def test_account_overview_rolls_up_indexed_totals(authed_client, make_repo):
     repo_path = make_repo({"a.py": "def a():\n    return 1\n"})
@@ -319,7 +319,7 @@ def test_account_overview_rolls_up_indexed_totals(authed_client, make_repo):
     assert acct["repo_count"] == 1
     assert acct["symbol_count"] >= 1
     assert "created_at" in acct
-    assert "password_hash" not in acct  # never leak the hash
+    assert "password_hash" not in acct                       
 
 
 def test_account_overview_requires_auth():
@@ -335,7 +335,7 @@ def test_change_email_updates_login_identity(authed_client):
     assert res.status_code == 200 and res.json()["email"] == "moved@example.com"
 
     authed_client.post("/api/auth/logout")
-    # old address no longer works, new one does
+                                               
     assert authed_client.post("/api/auth/login", json={"email": "apitester@example.com", "password": "correct horse battery staple"}).status_code == 401
     assert authed_client.post("/api/auth/login", json={"email": "moved@example.com", "password": "correct horse battery staple"}).status_code == 200
 
@@ -363,7 +363,7 @@ def test_delete_account_requires_typed_confirmation(authed_client):
     res = authed_client.post("/api/auth/delete-account", json={
         "current_password": "correct horse battery staple", "confirm": "yes",
     })
-    assert res.status_code == 422  # pydantic validator rejects it before the handler
+    assert res.status_code == 422                                                    
 
 
 def test_delete_account_requires_correct_password(authed_client):
@@ -382,7 +382,7 @@ def test_delete_account_removes_user_and_cascades_repos(authed_client, make_repo
     })
     assert res.status_code == 200
 
-    # session cleared, credentials gone, and the indexed data went with it
+                                                                          
     assert authed_client.get("/api/auth/me").json() is None
     assert authed_client.post("/api/auth/login", json={"email": "apitester@example.com", "password": "correct horse battery staple"}).status_code == 401
     with get_conn() as conn:

@@ -18,14 +18,14 @@ _PBKDF2_ITERATIONS = 200_000
 _RESET_TOKEN_TTL_MINUTES = 30
 
 # ---------------------------------------------------------------------------
-# Login rate limiting: in-memory, per-email sliding window. Same tradeoff as
-# the session secret -- resets on server restart, which is fine for a single
-# process at this scale and adds no new moving part (no Redis, no DB table
-# of timestamps to prune). Keyed by lowercased email, not IP, since the
-# threat this stops is credential-stuffing a specific account, and IP-based
-# limiting would need to know about proxies/load balancers this project
-# doesn't have yet.
-# ---------------------------------------------------------------------------
+                                                                            
+                                                                            
+                                                                          
+                                                                       
+                                                                           
+                                                                       
+                   
+                                                                             
 _LOGIN_ATTEMPT_LIMIT = 5
 _LOGIN_ATTEMPT_WINDOW_SECONDS = 15 * 60
 _login_attempts: dict[str, list[float]] = {}
