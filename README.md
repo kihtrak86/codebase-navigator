@@ -1,126 +1,135 @@
 # Codebase Navigator
 
-Codebase Navigator is a small static-analysis tool for understanding an unfamiliar repository.
+Codebase Navigator is a static-analysis tool for exploring and understanding unfamiliar codebases.
 
-Give it a GitHub repository URL and it builds a searchable dependency graph of the code. You can browse files and symbols, inspect callers and callees, trace a path between symbols, and see which parts of the code are affected by a change.
+Give it a GitHub repository URL and it analyzes the source code, builds a dependency graph, and provides a web interface for exploring files, symbols, imports, and function relationships.
 
 It currently supports **Python, JavaScript, JSX, TypeScript, and TSX**.
 
-## What it does
+## Features
 
-- Indexes a Git repository and stores the result in SQLite
-- Parses Python with Python's built-in `ast` module
-- Parses JavaScript/JSX/TypeScript/TSX with a lightweight custom parser
-- Resolves imports and many function/method calls across files
-- Shows files, functions, classes, and methods in a file tree
-- Shows callers, callees, and related tests for a symbol
-- Runs breadth-first impact analysis
-- Traces call paths between symbols
-- Displays a symbol's local dependency graph with D3
-- Keeps indexed repositories associated with a user account
+* Clone and index GitHub repositories
+* Parse Python using Python's built-in `ast` module
+* Parse JavaScript, JSX, TypeScript, and TSX using a custom parser
+* Resolve imports and function/method calls across files
+* Explore files, classes, functions, and methods
+* View callers and callees for individual symbols
+* Find related tests for a symbol
+* Trace call paths between two symbols
+* Run breadth-first impact analysis
+* Visualize local dependencies with D3.js
+* Store indexed repositories and user accounts in SQLite
+* Authenticate users with password hashing and signed sessions
 
-The project deliberately does **not** use an LLM. The graph is produced from the source code itself, so the same input produces the same analysis.
+The project does **not** use an LLM. Analysis is performed directly from the source code, making the results deterministic for the same input.
 
-## How it works
+## How It Works
 
-The indexing pipeline is:
+The indexing pipeline follows these steps:
 
 ```text
-Git repository
-      │
-      ▼
-   Clone
-      │
-      ▼
-    Parse
-  ┌───┴───────────────┐
-  │                   │
-Python AST       JS/TS parser
-  │                   │
-  └─────────┬─────────┘
-            ▼
-    Import resolution
-            │
-            ▼
-      Dependency graph
-            │
-            ▼
-          SQLite
-            │
-            ▼
-       API + frontend
+GitHub Repository
+       │
+       ▼
+     Clone
+       │
+       ▼
+     Parse
+   ┌───┴───────────────┐
+   │                   │
+Python AST       JS/TS Parser
+   │                   │
+   └─────────┬─────────┘
+             ▼
+     Import Resolution
+             │
+             ▼
+      Dependency Graph
+             │
+             ▼
+           SQLite
+             │
+             ▼
+        Web Interface
 ```
 
-The important part is the resolution step. A call is not simply connected to every symbol with the same name. The resolver first considers local bindings, then imports and known receiver types, and only uses repo-wide name matching when the call is otherwise ambiguous. This keeps the graph useful on real codebases where names are reused.
+The main challenge is resolving relationships between symbols.
 
-More detail about the implementation and the bugs found while testing it is in [`docs/ENGINEERING.md`](docs/ENGINEERING.md).
+For function and method calls, the resolver first looks at local bindings, imports, and known receiver types. When a call cannot be resolved more precisely, it falls back to repository-wide name matching. This allows the graph to remain useful when the same function or class name appears in multiple files.
 
-## Tech stack
+## Tech Stack
 
-**Backend**
-- Python 3.12+
-- FastAPI
-- SQLite
-- Hand-written SQL
-- pytest
+### Backend
 
-**Parsing**
-- Python `ast`
-- Custom parser for JavaScript / JSX / TypeScript / TSX
+* Python 3.12+
+* FastAPI
+* SQLite
+* SQL
+* pytest
 
-**Authentication**
-- PBKDF2 password hashing
-- Starlette signed-cookie sessions
+### Parsing & Analysis
 
-**Frontend**
-- HTML/CSS
-- Vanilla JavaScript
-- D3.js for graph visualization
+* Python `ast`
+* Custom JavaScript / TypeScript parser
+* Import and call resolution
+* Dependency graph construction
+
+### Authentication
+
+* PBKDF2 password hashing
+* Starlette signed-cookie sessions
+
+### Frontend
+
+* HTML
+* CSS
+* Vanilla JavaScript
+* D3.js
 
 There is no frontend build step.
 
-## Running locally
+## Getting Started
 
 ### Requirements
 
-- Python 3.12 or newer
-- Git
+* Python 3.12 or newer
+* Git
 
-### 1. Clone the project
+### 1. Clone the repository
 
 ```bash
 git clone <repository-url>
 cd codebase-navigator
 ```
 
-### 2. Install dependencies
+### 2. Set up the backend
 
 ```bash
 cd backend
 python -m venv .venv
 ```
 
-Activate the virtual environment:
+Activate the virtual environment.
 
-**Windows**
+**Windows:**
 
 ```powershell
 .venv\Scripts\activate
 ```
 
-**macOS / Linux**
+**macOS / Linux:**
 
 ```bash
 source .venv/bin/activate
 ```
 
-Then install the dependencies:
+Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Start the server
+### 3. Start the application
 
 ```bash
 python -m uvicorn app.main:app --reload --port 8000
@@ -132,27 +141,31 @@ Open:
 http://localhost:8000
 ```
 
-The frontend is served by the FastAPI application, so a separate frontend server is not required.
+The frontend is served directly by FastAPI, so no separate frontend development server is required.
 
-Create an account and paste a GitHub repository URL to start indexing.
+Create an account and provide a GitHub repository URL to begin indexing.
 
-### Session secret
+## Configuration
 
-For local use, the application can generate a session secret automatically. If you want sessions to remain valid after restarting the server, set `CODENAV_SECRET_KEY` to a long random value before starting the application.
+### Session Secret
 
-PowerShell:
+For local development, the application can generate a session secret automatically.
+
+To keep sessions valid across server restarts, set `CODENAV_SECRET_KEY` to a long random value.
+
+**PowerShell:**
 
 ```powershell
 $env:CODENAV_SECRET_KEY="your-random-secret"
 ```
 
-macOS / Linux:
+**macOS / Linux:**
 
 ```bash
 export CODENAV_SECRET_KEY="your-random-secret"
 ```
 
-## Running tests
+## Running Tests
 
 Install the development dependencies:
 
@@ -161,25 +174,25 @@ cd backend
 pip install -r requirements-dev.txt
 ```
 
-Run:
+Run the test suite:
 
 ```bash
 pytest
 ```
 
-The test suite covers:
+Tests cover:
 
-- Python parsing
-- JavaScript/TypeScript parsing
-- Import resolution
-- Call and method resolution
-- Nested functions and scope handling
-- Dependency graph construction
-- Repository indexing
-- API endpoints
-- Authentication and account operations
+* Python parsing
+* JavaScript and TypeScript parsing
+* Import resolution
+* Function and method resolution
+* Nested functions and scope handling
+* Dependency graph construction
+* Repository indexing
+* API endpoints
+* Authentication and account operations
 
-## Project structure
+## Project Structure
 
 ```text
 codebase-navigator/
@@ -216,24 +229,39 @@ codebase-navigator/
 
 ## Limitations
 
-This is a static-analysis tool, not a full compiler or language server.
+Codebase Navigator is a static-analysis tool rather than a compiler or language server.
 
-- Call resolution is best-effort. Dynamic dispatch and highly dynamic code cannot always be resolved statically.
-- Chained receivers such as `self.repo.save()` and types inferred from function return values may remain unresolved.
-- JavaScript test detection is limited because many test frameworks use anonymous callbacks rather than named test functions.
-- Search is currently based on symbol names and qualified names; there is no natural-language or semantic search.
-- Git history and pull-request analysis are not implemented.
-- The application currently uses SQLite and is intended primarily for local/demo use.
-- There is no email delivery service for password resets. In development, the reset token is returned by the API so the flow can be tested without an SMTP service. A public deployment should replace this with an email-based reset flow.
+Some limitations are expected:
 
-## Why build this?
+* Dynamic dispatch and highly dynamic code cannot always be resolved statically.
+* Chained receivers such as `self.repo.save()` may remain unresolved when their types cannot be inferred.
+* Types inferred from function return values are not always available to the resolver.
+* JavaScript test detection is limited for frameworks that rely heavily on anonymous callbacks.
+* Search is currently based on symbol names and qualified names rather than natural-language or semantic search.
+* Git history and pull-request analysis are not currently supported.
+* SQLite is used as the application database and is intended primarily for local or small-scale deployments.
+* Password-reset emails are not sent. In development, the reset token is returned by the API so the complete flow can be tested without an email service. A production deployment should replace this with an email-based reset mechanism.
 
-When joining an existing project, one of the first problems is figuring out how the pieces fit together. Searching for a function name can tell you where a symbol appears, but it does not necessarily tell you which definition is actually being called or what depends on it.
+## Project Focus
 
-Codebase Navigator focuses on that structural layer: **files → symbols → imports → calls → dependencies**.
+Understanding an unfamiliar codebase often starts with searching for function names and opening files one by one. That works for small projects, but becomes difficult when relationships span multiple files.
 
-The project was tested against real repositories while improving the resolver, with regression tests added for the cases that caused incorrect or missing dependency edges. The reasoning behind those changes is documented in [`docs/ENGINEERING.md`](docs/ENGINEERING.md).
+Codebase Navigator focuses on the structural relationships that are harder to see through simple text search:
+
+```text
+Files
+  ↓
+Symbols
+  ↓
+Imports
+  ↓
+Calls
+  ↓
+Dependencies
+```
+
+The project was developed with a focus on improving static call and import resolution and adding regression tests for cases that previously produced incorrect or missing dependency edges.
 
 ## License
 
-MIT. See [`LICENSE`](LICENSE).
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.
