@@ -201,8 +201,6 @@ codebase-navigator/
 │   ├── tests/
 │   ├── requirements.txt
 │   └── requirements-dev.txt
-├── docs/
-│   └── ENGINEERING.md
 ├── frontend/
 │   ├── index.html
 │   ├── auth.html
